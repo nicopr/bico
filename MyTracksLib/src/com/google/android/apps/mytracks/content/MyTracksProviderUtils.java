@@ -16,7 +16,8 @@
 
 package com.google.android.apps.mytracks.content;
 
-import android.content.ContentValues;
+import com.google.android.apps.mytracks.content.Waypoint.WaypointType;
+
 import android.content.Context;
 import android.database.Cursor;
 import android.location.Location;
@@ -40,14 +41,30 @@ public interface MyTracksProviderUtils {
   public static final String AUTHORITY = "com.google.android.maps.mytracks";
 
   /**
-   * Gets a track cursor. The caller owns the returned cursor and is responsible
-   * for closing it.
+   * Clears a track. Removes waypoints and trackpoints. Only keeps the track id.
    * 
-   * @param selection the selection
-   * @param selectionArgs the selection arguments
-   * @param sortOrder the sort order
+   * @param trackId the track id
    */
-  public Cursor getTracksCursor(String selection, String[] selectionArgs, String sortOrder);
+  public void clearTrack(long trackId);
+
+  /**
+   * Creates a {@link Track} from a cursor.
+   * 
+   * @param cursor the cursor pointing to the track
+   */
+  public Track createTrack(Cursor cursor);
+
+  /**
+   * Deletes all tracks (including waypoints and track points).
+   */
+  public void deleteAllTracks();
+
+  /**
+   * Deletes a track.
+   * 
+   * @param trackId the track id
+   */
+  public void deleteTrack(long trackId);
 
   /**
    * Gets all the tracks. If no track exists, an empty list is returned.
@@ -55,6 +72,11 @@ public interface MyTracksProviderUtils {
    * Note that the returned tracks do not have any track points attached.
    */
   public List<Track> getAllTracks();
+
+  /**
+   * Gets the last track. Returns null if doesn't exist.
+   */
+  public Track getLastTrack();
 
   /**
    * Gets a track by a track id. Returns null if not found.
@@ -66,21 +88,14 @@ public interface MyTracksProviderUtils {
   public Track getTrack(long trackId);
 
   /**
-   * Gets the last track. Returns null if doesn't exist.
-   */
-  public Track getLastTrack();
-
-  /**
-   * Gets the last track id. Returns -1L if doesn't exist.
-   */
-  public long getLastTrackId();
-
-  /**
-   * Returns true if a track exists.
+   * Gets a track cursor. The caller owns the returned cursor and is responsible
+   * for closing it.
    * 
-   * @param trackId the track id
+   * @param selection the selection. Can be null
+   * @param selectionArgs the selection arguments. Can be null
+   * @param sortOrder the sort order. Can be null
    */
-  public boolean trackExists(long trackId);
+  public Cursor getTrackCursor(String selection, String[] selectionArgs, String sortOrder);
 
   /**
    * Inserts a track.
@@ -102,94 +117,47 @@ public interface MyTracksProviderUtils {
   public void updateTrack(Track track);
 
   /**
-   * Deletes all tracks (including waypoints and track points).
+   * Creates a waypoint from a cursor.
+   * 
+   * @param cursor the cursor pointing to the waypoint
    */
-  public void deleteAllTracks();
+  public Waypoint createWaypoint(Cursor cursor);
 
   /**
-   * Deletes a track.
+   * Deletes a waypoint. If deleting a statistics waypoint, this will also
+   * correct the next statistics waypoint after the deleted one to reflect the
+   * deletion. The generator is used to update the next statistics waypoint.
    * 
-   * @param trackId the track id
+   * @param waypointId the waypoint id
+   * @param descriptionGenerator the description generator. Can be null for
+   *          waypoint marker
    */
-  public void deleteTrack(long trackId);
-
-  /**
-   * Creates a {@link Track} from a cursor.
-   * 
-   * @param cursor the cursor pointing to the track
-   */
-  public Track createTrack(Cursor cursor);
-
-  /**
-   * Creates a {@link ContentValues} from a track.
-   * 
-   * @param track the track
-   */
-  public ContentValues createContentValues(Track track);
-
-  /**
-   * Gets a waypoint cursor. The caller owns the returned cursor and is
-   * responsible for closing it.
-   * 
-   * @param selection the selection
-   * @param selectionArgs the selection arguments
-   * @param sortOrder the sort order
-   * @param maxWaypoints the maximum number of waypoints to return
-   */
-  public Cursor getWaypointsCursor(
-      String selection, String[] selectionArgs, String sortOrder, int maxWaypoints);
-
-  /**
-   * Gets a waypoint cursor for a track. The caller owns the returned cursor and
-   * is responsible for closing it.
-   * 
-   * @param trackId the track id
-   * @param minWaypointId the minimum waypoint id
-   * @param maxWaypoints the maximum number of waypoints to return
-   */
-  public Cursor getWaypointsCursor(long trackId, long minWaypointId, int maxWaypoints);
-
-  /**
-   * Gets the first recorded waypoint for a track. The first waypoint is special
-   * as it contains the stats for the current segment. Returns null if it
-   * doesn't exist.
-   * 
-   * @param trackId the track id
-   */
-  public Waypoint getFirstWaypoint(long trackId);
+  public void deleteWaypoint(long waypointId, DescriptionGenerator descriptionGenerator);
 
   /**
    * Gets the first waypoint id for a track. The first waypoint is special as it
-   * contains the stats for the current segment. Returns -1L if it doesn't
-   * exist.
+   * contains the stats for the track. Returns -1L if it doesn't exist.
    * 
    * @param trackId the track id
    */
   public long getFirstWaypointId(long trackId);
 
   /**
-   * Gets the last waypoint id for a track. Returns -1L if it doesn't exist.
+   * Gets the last waypoint for a type. Returns null if it doesn't exist.
    * 
    * @param trackId the track id
+   * @param waypointType the waypoint type
    */
-  public long getLastWaypointId(long trackId);
+  public Waypoint getLastWaypoint(long trackId, WaypointType waypointType);
 
   /**
-   * Gets the next marker number. Returns -1 if not able to get the next marker
-   * number.
+   * Gets the next waypoint number for a type. Returns -1 if not able to get the
+   * next waypoint number.
    * 
    * @param trackId the track id
-   * @param statistics true for statistics marker, false for waypoint marker
+   * @param waypointType the waypoint type
    */
-  public int getNextMarkerNumber(long trackId, boolean statistics);
-
-  /**
-   * Gets the next statistics waypoint after the given waypoint. Returns null if
-   * it doesn't exists.
-   * 
-   * @param waypoint the given waypoint
-   */
-  public Waypoint getNextStatisticsWaypointAfter(Waypoint waypoint);
+  public int getNextWaypointNumber(long trackId, WaypointType waypointType);
 
   /**
    * Gets a waypoint from a waypoint id. Returns null if not found.
@@ -197,6 +165,30 @@ public interface MyTracksProviderUtils {
    * @param waypointId the waypoint id
    */
   public Waypoint getWaypoint(long waypointId);
+
+  /**
+   * Gets a waypoint cursor. The caller owns the returned cursor and is
+   * responsible for closing it.
+   * 
+   * @param selection the selection. Can be null
+   * @param selectionArgs the selection arguments. Can be null
+   * @param sortOrder the sort order. Can be null
+   * @param maxWaypoints the maximum number of waypoints to return. -1 for no
+   *          limit
+   */
+  public Cursor getWaypointCursor(
+      String selection, String[] selectionArgs, String sortOrder, int maxWaypoints);
+
+  /**
+   * Gets a waypoint cursor for a track. The caller owns the returned cursor and
+   * is responsible for closing it.
+   * 
+   * @param trackId the track id
+   * @param minWaypointId the minimum waypoint id. -1L to ignore
+   * @param maxWaypoints the maximum number of waypoints to return. -1 for no
+   *          limit
+   */
+  public Cursor getWaypointCursor(long trackId, long minWaypointId, int maxWaypoints);
 
   /**
    * Inserts a waypoint.
@@ -214,50 +206,69 @@ public interface MyTracksProviderUtils {
   public boolean updateWaypoint(Waypoint waypoint);
 
   /**
-   * Deletes a waypoint. If deleting a statistics waypoint, this will also
-   * correct the next statistics waypoint after the deleted one to reflect the
-   * deletion. The generator is used to update the next statistics waypoint.
+   * Inserts multiple track points.
    * 
-   * @param waypointId the waypoint id
-   * @param descriptionGenerator the description generator
+   * @param locations an array of locations
+   * @param length the number of locations (from the beginning of the array) to
+   *          insert, or -1 for all of them
+   * @param trackId the track id
+   * @return the number of points inserted
    */
-  public void deleteWaypoint(long waypointId, DescriptionGenerator descriptionGenerator);
+  public int bulkInsertTrackPoint(Location[] locations, int length, long trackId);
 
   /**
-   * Creates a waypoint from a cursor.
+   * Creates a location object from a cursor.
    * 
-   * @param cursor the cursor pointing to the waypoint
+   * @param cursor the cursor pointing to the location
    */
-  public Waypoint createWaypoint(Cursor cursor);
+  public Location createTrackPoint(Cursor cursor);
 
   /**
-   * Gets the first recorded location. Returns null if it doesn't exist.
-   */
-  public Location getFirstLocation();
-
-  /**
-   * Gets the last recorded location. Returns null if it doesn't exist.
-   */
-  public Location getLastLocation();
-
-  /**
-   * Gets a location by track point id. Returns null if not found.
+   * Gets the first location id for a track. Returns -1L if it doesn't exist.
    * 
-   * @param trackPointId the track point id
+   * @param trackId the track id
    */
-  public Location getLocation(long trackPointId);
+  public long getFirstTrackPointId(long trackId);
 
+  /**
+   * Gets the last location id for a track. Returns -1L if it doesn't exist.
+   * 
+   * @param trackId the track id
+   */
+  public long getLastTrackPointId(long trackId);
+
+  /**
+   * Gets the first valid location for a track. Returns null if it doesn't
+   * exist.
+   * 
+   * @param trackId the track id
+   */
+  public Location getFirstValidTrackPoint(long trackId);
+
+  /**
+   * Gets the last valid location for a track. Returns null if it doesn't exist.
+   * 
+   * @param trackId the track id
+   */
+  public Location getLastValidTrackPoint(long trackId);
+
+  
+  /**
+   * Gets the last valid location.
+   */
+  public Location getLastValidTrackPoint();
+  
   /**
    * Creates a location cursor. The caller owns the returned cursor and is
    * responsible for closing it.
    * 
    * @param trackId the track id
-   * @param startTrackPointId the starting track point id
-   * @param maxLocations maximum number of locations to return
+   * @param startTrackPointId the starting track point id. -1L to ignore
+   * @param maxLocations maximum number of locations to return. -1 for no limit
    * @param descending true to sort the result in descending order (latest
    *          location first)
    */
-  public Cursor getLocationsCursor(
+  public Cursor getTrackPointCursor(
       long trackId, long startTrackPointId, int maxLocations, boolean descending);
 
   /**
@@ -272,21 +283,13 @@ public interface MyTracksProviderUtils {
    * iteration, {@link LocationIterator#close()} must be called.
    * 
    * @param trackId the track id
-   * @param startTrackPointId the start track point id or -1L to start from the
-   *          first point
+   * @param startTrackPointId the starting track point id. -1L to ignore
    * @param descending true to sort the result in descending order (latest
    *          location first)
    * @param locationFactory the location factory
    */
-  public LocationIterator getLocationIterator(
+  public LocationIterator getTrackPointLocationIterator(
       long trackId, long startTrackPointId, boolean descending, LocationFactory locationFactory);
-
-  /**
-   * Gets the last location id for a track. Returns -1L if it doesn't exist.
-   * 
-   * @param trackId the track id
-   */
-  public long getLastLocationId(long trackId);
 
   /**
    * Inserts a track point.
@@ -296,32 +299,6 @@ public interface MyTracksProviderUtils {
    * @return the content provider URI of the inserted track point
    */
   public Uri insertTrackPoint(Location location, long trackId);
-
-  /**
-   * Inserts multiple track points.
-   * 
-   * @param locations an array of locations
-   * @param length the number of locations (from the beginning of the array) to
-   *          insert, or -1 for all of them
-   * @param trackId the track id
-   * @return the number of points inserted
-   */
-  public int bulkInsertTrackPoints(Location[] locations, int length, long trackId);
-
-  /**
-   * Fills a location from a cursor.
-   * 
-   * @param cursor the cursor pointing to the location
-   * @param location the location to be overwritten
-   */
-  public void fillLocation(Cursor cursor, Location location);
-
-  /**
-   * Creates a location object from a cursor.
-   * 
-   * @param cursor the cursor pointing to the location
-   */
-  public Location createLocation(Cursor cursor);
 
   /**
    * A lightweight wrapper around the original {@link Cursor} with a method to
@@ -358,28 +335,9 @@ public interface MyTracksProviderUtils {
   public LocationFactory DEFAULT_LOCATION_FACTORY = new LocationFactory() {
       @Override
     public Location createLocation() {
-      return new Location(LocationManager.GPS_PROVIDER);
+      return new MyTracksLocation(LocationManager.GPS_PROVIDER);
     }
   };
-
-  /**
-   * A {@link LocationFactory} which uses two location instances (one for the
-   * current location and one for the previous), useful when needing to keep the
-   * last location.
-   */
-  public class DoubleBufferedLocationFactory implements LocationFactory {
-
-    private final Location locations[] = new MyTracksLocation[] {
-        new MyTracksLocation(LocationManager.GPS_PROVIDER),
-        new MyTracksLocation(LocationManager.GPS_PROVIDER) };
-    private int lastLocation = 0;
-
-    @Override
-    public Location createLocation() {
-      lastLocation = (lastLocation + 1) % locations.length;
-      return locations[lastLocation];
-    }
-  }
 
   /**
    * A factory which can produce instances of {@link MyTracksProviderUtils}, and

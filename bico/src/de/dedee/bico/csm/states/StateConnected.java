@@ -19,6 +19,7 @@ package de.dedee.bico.csm.states;
 
 import android.os.RemoteException;
 import android.util.Log;
+import de.dedee.bico.BicoAverage;
 import de.dedee.bico.C;
 import de.dedee.bico.csm.AbstractState;
 import de.dedee.bico.csm.StateContext;
@@ -36,6 +37,10 @@ public class StateConnected extends AbstractState {
 		try {
 			if (ctx.getData().getMyTracksService() != null) {
 				if (ctx.getData().getMyTracksService().isRecording()) {
+
+					// Clear points used to compute average over one minute
+					BicoAverage.ClearPoints();
+
 					Log.i(C.TAG, "Mytracks is recording currently, so we change status to recording");
 					ctx.sendEvent(Event.UpdateStatistics);
 				} else {

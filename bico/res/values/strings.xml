@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">bico - MetaWatch Bike Computer</string>
+    <string name="app_name">BiCo - MetaWatch Bike Computer</string>
     <string name="labelversion">Version</string>
     <string name="defaultversion">Unknown</string>
     <string name="status">Status</string>
@@ -10,5 +10,7 @@
     <string name="avgspeed">Avg Speed</string>
     <string name="time">Time</string>
     <string name="elevation">Alt</string>
+    <string name="totaldistance">Distance</string>
+    <string name="avgspeedoveroneminute">Last Minute</string>
 
 </resources>

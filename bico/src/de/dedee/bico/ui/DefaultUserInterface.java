@@ -24,7 +24,9 @@ import android.util.Log;
 
 import com.google.android.apps.mytracks.stats.TripStatistics;
 
+import de.dedee.bico.BicoAverage;
 import de.dedee.bico.C;
+import de.dedee.bico.R;
 import de.dedee.bico.theme.Theme;
 import de.dedee.bico.theme.ThemeFactory;
 import de.dedee.bico.theme.UpdateData;
@@ -49,9 +51,33 @@ public class DefaultUserInterface implements UserInterface {
 		if (tripStatistics != null) {
 			UpdateData ud = new UpdateData();
 			ud.setTitle(title);
-			ud.setAverageSpeed(Units.convertSpeed(tripStatistics.getAverageMovingSpeed()));
+			ud.setAverageSpeed(Units.convertSpeed(tripStatistics.getAverageSpeed()));
 			ud.setMovingTime(Units.durationToString(tripStatistics.getMovingTime()));
 			ud.setElevationGain(Units.convertElevationGain(tripStatistics.getTotalElevationGain()));
+
+			ud.setTotalTime(Units.durationToString(tripStatistics.getTotalTime()));
+
+			// Time rounded to lower 10s for running display
+			ud.setTotalTimeRounded(Units.durationToString((tripStatistics.getTotalTime() / 10000) * 10000));
+
+			// average speed over last minute
+			double averageSpeedOverOneMinute = BicoAverage.GetAverageSpeedOverOneMinute(
+					tripStatistics.getTotalDistance(), tripStatistics.getTotalTime());
+
+			if (averageSpeedOverOneMinute < 0)
+				averageSpeedOverOneMinute = tripStatistics.getAverageSpeed();
+
+			ud.setAverageSpeedOverOneMinute(Units.convertSpeed(averageSpeedOverOneMinute));
+
+			// Average speed trend
+			if (averageSpeedOverOneMinute > tripStatistics.getAverageSpeed() * 1.05)
+				ud.setAverageTrend(R.drawable.arrowup);
+			else if (averageSpeedOverOneMinute < tripStatistics.getAverageSpeed() * 0.95)
+				ud.setAverageTrend(R.drawable.arrowdown);
+			else
+				ud.setAverageTrend(R.drawable.arrowright);
+
+			ud.setTotalDistance(Units.convertTotalDistance(tripStatistics.getTotalDistance()));
 
 			Bitmap bitmap = theme.createTextBitmap(UpdateMode.Recording, ud);
 			send(bitmap);
@@ -63,11 +89,14 @@ public class DefaultUserInterface implements UserInterface {
 		TripStatistics tripStatistics = new TripStatistics();
 		tripStatistics.setTotalElevationGain(1234);
 		tripStatistics.setTotalDistance(25.6 * 1000);
+		tripStatistics.setTotalTime(1000 * 60 * 45);
 		tripStatistics.setMovingTime(1000 * 60 * 45);
 
 		UpdateData ud = new UpdateData();
 		ud.setTitle("Demo");
-		ud.setAverageSpeed(Units.convertSpeed(tripStatistics.getAverageMovingSpeed()));
+		ud.setAverageSpeed(Units.convertSpeed(tripStatistics.getAverageSpeed()));
+		ud.setTotalTime(Units.durationToString(tripStatistics.getTotalTime()));
+		ud.setTotalDistance(Units.convertTotalDistance(tripStatistics.getTotalDistance()));
 		ud.setMovingTime(Units.durationToString(tripStatistics.getMovingTime()));
 		ud.setElevationGain(Units.convertElevationGain(tripStatistics.getTotalElevationGain()));
 

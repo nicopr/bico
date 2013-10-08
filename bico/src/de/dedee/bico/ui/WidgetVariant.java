@@ -37,7 +37,7 @@ public class WidgetVariant {
 		this.resolution = resolution;
 		this.description = name + " (" + resolution.getWidth() + "x" + resolution.getHeight() + ")";
 		this.id = this.description.replace(' ', '_');
-		this.ui = new DefaultUserInterface(context, this, "FIXME");
+		this.ui = new DefaultUserInterface(context, this, name);
 	}
 
 	public String getName() {

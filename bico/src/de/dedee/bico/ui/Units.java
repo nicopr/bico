@@ -39,6 +39,15 @@ public class Units {
 		}
 	}
 
+	public static UpdateValue convertTotalDistance(double totalDistanceInMeters) {
+		if (isMetric()) {
+			return new UpdateValue(String.format("%.1f", totalDistanceInMeters / 1000), "km");
+		} else {
+			// Return in feet
+			return new UpdateValue(String.format("%.1f", totalDistanceInMeters / 1609.344), "mi");
+		}
+	}
+
 	public static UpdateValue convertSpeed(double speedMeterPerSeconds) {
 		if (isMetric()) {
 			return new UpdateValue(String.format("%.1f", speedMeterPerSeconds * 3.6), "km/h");
@@ -58,15 +67,16 @@ public class Units {
 	}
 
 	public final static UpdateValue durationToString(long durationInMillis) {
-		// hh:mm
-		long minutes = durationInMillis / 1000 / 60;
-		long h = minutes / 60;
-		long m = minutes % 60;
+		// hms
+		long seconds = durationInMillis / 1000;
+		long s = seconds % 60;
+		long m = (seconds / 60) % 60;
+		long h = seconds / 3600;
 		StringBuffer sb = new StringBuffer();
 
 		String s_h = Long.toString(h);
-		if (s_h.length() == 1)
-			sb.append('0');
+		// if (s_h.length() == 1)
+		// sb.append('0');
 		sb.append(s_h);
 
 		sb.append(':');
@@ -76,6 +86,13 @@ public class Units {
 			sb.append('0');
 		sb.append(s_m);
 
-		return new UpdateValue(sb.toString(),"");
+		sb.append(":");
+
+		String s_s = Long.toString(s);
+		if (s_s.length() == 1)
+			sb.append('0');
+		sb.append(s_s);
+
+		return new UpdateValue(sb.toString(), "");
 	}
 }

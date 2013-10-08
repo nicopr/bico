@@ -41,8 +41,12 @@ public class WidgetVariants implements UserInterface {
 
 		// FIXME: Multiple variants don't work currently. There is no real guarantee that we always know which variant
 		// is activated.
-		variants.add(new WidgetVariant("bico text small", new Resolution(96, 32), "bico text small", context));
-		variants.add(new WidgetVariant("bico text large", new Resolution(96, 64), "bico text large", context));
+		// NOTE: to get the widget up and running on the watch, one must disconnect/reconnect after widget selection on
+		// MWM CE before starting track recording with mytracks
+
+		variants.add(new WidgetVariant("BiCo Running", new Resolution(96, 64), "BiCo Running Theme", context));
+		variants.add(new WidgetVariant("BiCo text small", new Resolution(96, 32), "bico text small", context));
+		variants.add(new WidgetVariant("BiCo text large", new Resolution(96, 64), "bico text large", context));
 
 		load();
 	}

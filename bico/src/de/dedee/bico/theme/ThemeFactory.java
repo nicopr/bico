@@ -23,12 +23,13 @@ import de.dedee.bico.ui.Resolution;
 public class ThemeFactory {
 
 	public static Theme createTheme(Context context, Resolution resolution, String themeId) {
-		if (resolution.getHeight() > 32)
+
+		if (themeId == "BiCo text small")
+			return new DefaultTheme32(context, resolution);
+		else if (themeId == "BiCo text large")
 			return new DefaultTheme64(context, resolution);
 		else
-			return new DefaultTheme32(context, resolution);
-		// return new DefaultTheme(context, resolution);
-		// return new DefaultTheme64(context, resolution);
+			return new RunningTheme64(context, resolution);
 	}
 
 }

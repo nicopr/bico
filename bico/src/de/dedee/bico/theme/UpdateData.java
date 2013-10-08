@@ -22,7 +22,12 @@ public class UpdateData {
 	private String title;
 	private UpdateValue averageSpeed;
 	private UpdateValue movingTime;
+	private UpdateValue totalTime;
+	private UpdateValue totalTimeRounded;
+	private UpdateValue totalDistance;
 	private UpdateValue elevationGain;
+	private UpdateValue averageSpeedOverOneMinute;
+	private int averageTrend;
 
 	public String getTitle() {
 		return title;
@@ -40,12 +45,52 @@ public class UpdateData {
 		this.averageSpeed = averageSpeed;
 	}
 
+	public UpdateValue getAverageSpeedOverOneMinute() {
+		return averageSpeedOverOneMinute;
+	}
+
+	public void setAverageSpeedOverOneMinute(UpdateValue averageSpeedOverOneMinute) {
+		this.averageSpeedOverOneMinute = averageSpeedOverOneMinute;
+	}
+
 	public UpdateValue getMovingTime() {
 		return movingTime;
 	}
 
 	public void setMovingTime(UpdateValue movingTime) {
 		this.movingTime = movingTime;
+	}
+
+	public UpdateValue getTotalTime() {
+		return totalTime;
+	}
+
+	public void setTotalTime(UpdateValue totalTime) {
+		this.totalTime = totalTime;
+	}
+
+	public UpdateValue getTotalTimeRounded() {
+		return totalTimeRounded;
+	}
+
+	public void setTotalTimeRounded(UpdateValue totalTimeRounded) {
+		this.totalTimeRounded = totalTimeRounded;
+	}
+
+	public UpdateValue getTotalDistance() {
+		return totalDistance;
+	}
+
+	public void setTotalDistance(UpdateValue totalDistance) {
+		this.totalDistance = totalDistance;
+	}
+
+	public int getAverageTrend() {
+		return averageTrend;
+	}
+
+	public void setAverageTrend(int averageTrend) {
+		this.averageTrend = averageTrend;
 	}
 
 	public UpdateValue getElevationGain() {
