@@ -27,6 +27,8 @@ public class States {
 	private StateConnected stateConnected;
 	private StateEnd stateEnd;
 	private StateUpdatingStatistics stateRecording;
+	private StatePausing statePausing;
+	private StateResuming stateResuming;
 
 	public States(StateContext ctx) {
 		stateDisconnecting = new StateDisconnecting(ctx);
@@ -35,6 +37,8 @@ public class States {
 		stateConnected = new StateConnected(ctx);
 		stateEnd = new StateEnd(ctx);
 		stateRecording = new StateUpdatingStatistics(ctx);
+		statePausing = new StatePausing(ctx);
+		stateResuming = new StateResuming(ctx);
 	}
 
 	public StateDisconnecting getStateDisconnecting() {
@@ -61,4 +65,11 @@ public class States {
 		return stateRecording;
 	}
 
+	public StatePausing getStatePausing() {
+		return statePausing;
+	}
+
+	public StateResuming getStateResuming() {
+		return stateResuming;
+	}
 }

@@ -47,6 +47,7 @@ public class StateDisconnected extends AbstractState {
 				Track track = myTracksProviderUtils.getLastTrack();
 				if (track != null) {
 					tripStatistics = track.getTripStatistics();
+					StateUpdatingStatistics.Trackstate = "Last track stats";
 				} else {
 					Log.e(C.TAG, "No last track");
 				}
@@ -59,7 +60,7 @@ public class StateDisconnected extends AbstractState {
 
 		if (tripStatistics != null) {
 			Log.d(C.TAG, "Updating statistics view with last track");
-			ctx.getUi().sendTripStatistics(tripStatistics, "Last Track");
+			ctx.getUi().sendTripStatistics(tripStatistics, StateUpdatingStatistics.Trackstate);
 		} else {
 			Log.d(C.TAG, "No last track available, clearing screen");
 			ctx.getUi().clearScreen();

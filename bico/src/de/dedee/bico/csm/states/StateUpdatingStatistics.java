@@ -37,6 +37,8 @@ public class StateUpdatingStatistics extends AbstractState {
 		super(ctx);
 	}
 
+	public static String Trackstate;
+
 	@Override
 	public void work() throws StateExecutionException {
 		try {
@@ -55,7 +57,7 @@ public class StateUpdatingStatistics extends AbstractState {
 						tripStatistics = track.getTripStatistics();
 
 						if (tripStatistics != null) {
-							ctx.getUi().sendTripStatistics(tripStatistics, "Running");
+							ctx.getUi().sendTripStatistics(tripStatistics, Trackstate);
 							updated = true;
 							Log.d(C.TAG, "Updating statistics view");
 						}
@@ -71,15 +73,17 @@ public class StateUpdatingStatistics extends AbstractState {
 			}
 
 			if (updated) {
-				// Sleep 10s and read again
-				Timer timer = new Timer();
-				timer.schedule(new TimerTask() {
-					@Override
-					public void run() {
-						Log.i(C.TAG, "Pinging Recording...");
-						ctx.sendEvent(Event.UpdateStatistics);
-					}
-				}, 10 * 1000);
+				if (Trackstate == "Running") { // if Paused, we don't need to keep timer scheduling
+					// Sleep 10s and read again
+					Timer timer = new Timer();
+					timer.schedule(new TimerTask() {
+						@Override
+						public void run() {
+							Log.i(C.TAG, "Pinging Recording...");
+							ctx.sendEvent(Event.UpdateStatistics);
+						}
+					}, 10 * 1000);
+				}
 			} else {
 				ctx.sendEvent(Event.Back);
 			}
@@ -112,6 +116,16 @@ public class StateUpdatingStatistics extends AbstractState {
 			return true;
 		}
 
+		case Pausing: {
+			ctx.changeTo(ctx.getStates().getStatePausing());
+			return true;
+		}
+
+		case Resuming: {
+			ctx.changeTo(ctx.getStates().getStateResuming());
+			return true;
+		}
+
 		default: {
 			return super.handleEvent(evt);
 		}
@@ -119,13 +133,4 @@ public class StateUpdatingStatistics extends AbstractState {
 		}
 	}
 
-	@Override
-	public void enter() {
-		ctx.vibrate();
-	}
-
-	@Override
-	public void leave() {
-		ctx.vibrate();
-	}
 }

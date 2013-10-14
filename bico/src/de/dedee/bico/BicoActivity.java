@@ -32,8 +32,7 @@ public class BicoActivity extends Activity {
 		setContentView(R.layout.main);
 		startService(new Intent(this, BicoService.class));
 		try {
-			String version = getPackageManager().getPackageInfo(
-					getPackageName(), 0).versionName;
+			String version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
 			((TextView) findViewById(R.id.textVersion)).setText(version);
 		} catch (NameNotFoundException e) {
 			Log.e(C.TAG, "Could not read version", e);

@@ -30,6 +30,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
+import android.os.RemoteException;
 import android.util.Log;
 import de.dedee.bico.csm.StateContext;
 import de.dedee.bico.csm.states.Event;
@@ -63,10 +64,13 @@ public class BicoService extends Service {
 		// Register to MyTracks service to receiver notifications.
 		IntentFilter intentFilter = new IntentFilter();
 		intentFilter.addAction(IntentConstants.COM_GOOGLE_ANDROID_APPS_MYTRACKS_TRACK_STARTED);
+		intentFilter.addAction(IntentConstants.COM_GOOGLE_ANDROID_APPS_MYTRACKS_TRACK_PAUSED);
+		intentFilter.addAction(IntentConstants.COM_GOOGLE_ANDROID_APPS_MYTRACKS_TRACK_RESUMED);
 		intentFilter.addAction(IntentConstants.COM_GOOGLE_ANDROID_APPS_MYTRACKS_TRACK_STOPPED);
 		intentFilter.addAction(IntentConstants.ORG_METAWATCH_MANAGER_REFRESH_WIDGET_REQUEST);
 		intentFilter.addAction(IntentConstants.ORG_METAWATCH_MANAGER_APPLICATION_DISCOVERY);
-		intentFilter.addAction(IntentConstants.ORG_METAWATCH_MANAGER_BUTTON_PRESS);
+		intentFilter.addAction(IntentConstants.ORG_METAWATCH_MANAGER_BUTTON_PRESS_RIGHT);
+		intentFilter.addAction(IntentConstants.ORG_METAWATCH_MANAGER_BUTTON_PRESS_LEFT); // future use
 		registerReceiver(serviceStatusReceiver, intentFilter);
 	}
 
@@ -121,10 +125,22 @@ public class BicoService extends Service {
 			if (action.equals(IntentConstants.COM_GOOGLE_ANDROID_APPS_MYTRACKS_TRACK_STARTED)) {
 				Log.i(C.TAG, "The track was started");
 				ctx.sendEvent(Event.Connect);
+				ctx.vibrate();
 
 			} else if (action.equals(IntentConstants.COM_GOOGLE_ANDROID_APPS_MYTRACKS_TRACK_STOPPED)) {
 				Log.i(C.TAG, "The track was stopped");
 				ctx.sendEvent(Event.Disconnect);
+				ctx.vibrate();
+
+			} else if (action.equals(IntentConstants.COM_GOOGLE_ANDROID_APPS_MYTRACKS_TRACK_PAUSED)) {
+				Log.i(C.TAG, "The track was paused");
+				ctx.sendEvent(Event.Pausing);
+				ctx.vibrate();
+
+			} else if (action.equals(IntentConstants.COM_GOOGLE_ANDROID_APPS_MYTRACKS_TRACK_RESUMED)) {
+				Log.i(C.TAG, "The track was resumed");
+				ctx.sendEvent(Event.Resuming);
+				ctx.vibrate();
 
 			} else if (action.equals(IntentConstants.ORG_METAWATCH_MANAGER_REFRESH_WIDGET_REQUEST)) {
 				Log.d(C.TAG, "Widget update requested we resend the previous stats or clear the screen");
@@ -138,7 +154,6 @@ public class BicoService extends Service {
 					} else {
 						Log.i(C.TAG, "Got REFRESH_WIDGET_REQUEST and we are NOT activated");
 					}
-
 				}
 
 				// Send an UI update for all possible variants we provide.
@@ -153,8 +168,27 @@ public class BicoService extends Service {
 			} else if (action.equals(IntentConstants.ORG_METAWATCH_MANAGER_APPLICATION_DISCOVERY)) {
 				// Just for apps. Not for widgets
 
-			} else if (action.equals(IntentConstants.ORG_METAWATCH_MANAGER_BUTTON_PRESS)) {
-				Log.d(C.TAG, "Received a button event from the MetaWatch. Currently we ignore this");
+			} else if (action.equals(IntentConstants.ORG_METAWATCH_MANAGER_BUTTON_PRESS_RIGHT)) {
+				/*
+				 * Control from metawatch manager: toggles Pause/Resume
+				 */
+				Log.d(C.TAG, "Received Right Button press from Metawatch Manager, pausing/resuming mytracks");
+				try {
+					if (ctx.getData().getMyTracksService().isPaused()) {
+						ctx.getData().getMyTracksService().resumeCurrentTrack();
+					} else {
+						ctx.getData().getMyTracksService().pauseCurrentTrack();
+					}
+
+				} catch (RemoteException e) {
+					Log.e(C.TAG, "Exception raised MyTracks services not active", e);
+				}
+
+			} else if (action.equals(IntentConstants.ORG_METAWATCH_MANAGER_BUTTON_PRESS_LEFT)) {
+				/*
+				 * Control from metawatch manager: RFU
+				 */
+				Log.d(C.TAG, "Received Left Button press from Metawatch Manager RFU");
 
 			} else {
 				Log.w(C.TAG, "Ignored action in receiver " + action);

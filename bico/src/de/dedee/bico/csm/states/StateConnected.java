@@ -41,7 +41,13 @@ public class StateConnected extends AbstractState {
 					// Clear points used to compute average over one minute
 					BicoAverage.ClearPoints();
 
-					Log.i(C.TAG, "Mytracks is recording currently, so we change status to recording");
+					Log.i(C.TAG, "Mytracks is recording currently, so we change status to Running or Paused");
+
+					if (ctx.getData().getMyTracksService().isPaused())
+						StateUpdatingStatistics.Trackstate = "Paused";
+					else
+						StateUpdatingStatistics.Trackstate = "Running";
+
 					ctx.sendEvent(Event.UpdateStatistics);
 				} else {
 					Log.i(C.TAG, "Mytracks is not recording currently");

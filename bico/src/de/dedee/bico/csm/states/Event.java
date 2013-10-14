@@ -18,5 +18,5 @@
 package de.dedee.bico.csm.states;
 
 public enum Event {
-	Disconnected, Connect, Connected, Terminate, Disconnect, UpdateStatistics, Back, UpdatePreviousTrackStatistics
+	Disconnected, Connect, Connected, Terminate, Disconnect, UpdateStatistics, Pausing, Resuming, Back, UpdatePreviousTrackStatistics
 }
