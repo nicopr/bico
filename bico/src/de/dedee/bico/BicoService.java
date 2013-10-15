@@ -19,6 +19,7 @@ package de.dedee.bico;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -32,8 +33,13 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.util.Log;
+
+import com.google.android.apps.mytracks.content.Waypoint.WaypointType;
+import com.google.android.apps.mytracks.content.WaypointCreationRequest;
+
 import de.dedee.bico.csm.StateContext;
 import de.dedee.bico.csm.states.Event;
+import de.dedee.bico.ui.Units;
 import de.dedee.bico.ui.WidgetVariants;
 
 /**
@@ -116,7 +122,6 @@ public class BicoService extends Service {
 	}
 
 	class MyTracksServiceStatusReceiver extends BroadcastReceiver {
-
 		@Override
 		public void onReceive(Context context, Intent intent) {
 
@@ -173,22 +178,42 @@ public class BicoService extends Service {
 				 * Control from metawatch manager: toggles Pause/Resume
 				 */
 				Log.d(C.TAG, "Received Right Button press from Metawatch Manager, pausing/resuming mytracks");
+
 				try {
 					if (ctx.getData().getMyTracksService().isPaused()) {
 						ctx.getData().getMyTracksService().resumeCurrentTrack();
 					} else {
+						if (ctx.getData().getMyTracksService().getTotalTime() > 15 * 1000)
+							ctx.getData()
+									.getMyTracksService()
+									.insertWaypoint(
+											new WaypointCreationRequest(WaypointType.WAYPOINT, false, "Pause", Calendar
+													.getInstance().getTime().toString(), Units.durationToString(
+													ctx.getData().getMyTracksService().getTotalTime()).getValue(), ""));
+
 						ctx.getData().getMyTracksService().pauseCurrentTrack();
 					}
-
 				} catch (RemoteException e) {
 					Log.e(C.TAG, "Exception raised MyTracks services not active", e);
 				}
 
 			} else if (action.equals(IntentConstants.ORG_METAWATCH_MANAGER_BUTTON_PRESS_LEFT)) {
 				/*
-				 * Control from metawatch manager: RFU
+				 * Control from metawatch manager: Add waypoint
 				 */
-				Log.d(C.TAG, "Received Left Button press from Metawatch Manager RFU");
+				Log.d(C.TAG, "Received Left Button press from Metawatch Manager, adding waypoint");
+
+				try {
+					ctx.getData()
+							.getMyTracksService()
+							.insertWaypoint(
+									new WaypointCreationRequest(WaypointType.WAYPOINT, false, "Point of Interest",
+											Calendar.getInstance().getTime().toString(), Units.durationToString(
+													ctx.getData().getMyTracksService().getTotalTime()).getValue(), ""));
+				} catch (RemoteException e) {
+					Log.e(C.TAG, "Exception raised MyTracks services not active", e);
+				}
+				ctx.vibrate();
 
 			} else {
 				Log.w(C.TAG, "Ignored action in receiver " + action);
