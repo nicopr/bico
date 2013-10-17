@@ -33,6 +33,8 @@ public class ContextData {
 
 	private ITrackRecordingService myTracksService;
 
+	private boolean myTracksServiceStatus = false;
+
 	public ContextData(StateContext ctx) {
 		this.ctx = ctx;
 	}
@@ -43,6 +45,18 @@ public class ContextData {
 
 	public ITrackRecordingService getMyTracksService() {
 		return myTracksService;
+	}
+
+	public boolean getMyTracksServiceStatus() {
+		return myTracksServiceStatus;
+	}
+
+	public void setMyTracksServiceStatus() {
+		myTracksServiceStatus = true;
+	}
+
+	public void clearMyTracksServiceStatus() {
+		myTracksServiceStatus = false;
 	}
 
 	private ServiceConnection serviceConnection = new ServiceConnection() {
@@ -59,6 +73,7 @@ public class ContextData {
 		public void onServiceDisconnected(ComponentName className) {
 			Log.i(C.TAG, "onServiceDisconnected " + className);
 			myTracksService = null;
+			myTracksServiceStatus = false;
 			ctx.sendEvent(Event.Disconnected);
 		}
 	};

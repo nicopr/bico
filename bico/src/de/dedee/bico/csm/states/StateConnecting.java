@@ -44,6 +44,8 @@ public class StateConnecting extends AbstractState {
 		// boolean status = ctx.getAppContext().bindService(mytracksIntent, ctx.getData().getServiceConnection(), 0);
 		boolean status = ctx.getAppContext().bindService(mytracksIntent, ctx.getData().getServiceConnection(),
 				Service.BIND_AUTO_CREATE);
+		ctx.getData().setMyTracksServiceStatus();
+
 		Log.d(C.TAG, "Started service via intent... Status: " + status);
 	}
 

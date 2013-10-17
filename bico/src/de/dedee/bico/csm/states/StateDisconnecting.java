@@ -17,11 +17,8 @@
 
 package de.dedee.bico.csm.states;
 
-import android.content.ComponentName;
-import android.content.Intent;
 import android.util.Log;
 import de.dedee.bico.C;
-import de.dedee.bico.R;
 import de.dedee.bico.csm.AbstractState;
 import de.dedee.bico.csm.StateContext;
 import de.dedee.bico.csm.StateExecutionException;
@@ -34,14 +31,15 @@ public class StateDisconnecting extends AbstractState {
 
 	@Override
 	public void work() throws StateExecutionException {
-		Intent mytracksIntent = new Intent();
-		ComponentName componentName = new ComponentName(ctx.getAppContext()
-				.getString(R.string.mytracks_service_package), ctx.getAppContext().getString(
-				R.string.mytracks_service_class));
-		mytracksIntent.setComponent(componentName);
+		/*
+		 * Intent mytracksIntent = new Intent(); ComponentName componentName = new ComponentName(ctx.getAppContext()
+		 * .getString(R.string.mytracks_service_package), ctx.getAppContext().getString(
+		 * R.string.mytracks_service_class)); mytracksIntent.setComponent(componentName);
+		 */
 
 		try {
 			ctx.getAppContext().unbindService(ctx.getData().getServiceConnection());
+			ctx.getData().clearMyTracksServiceStatus();
 		} catch (Exception e) {
 			Log.w(C.TAG, "Could not unbind service", e);
 		}

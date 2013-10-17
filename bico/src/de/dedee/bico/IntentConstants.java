@@ -25,6 +25,7 @@ public interface IntentConstants {
 	public static final String COM_GOOGLE_ANDROID_APPS_MYTRACKS_TRACK_STOPPED = "com.google.android.apps.mytracks.TRACK_STOPPED";
 	public static final String ORG_METAWATCH_MANAGER_BUTTON_PRESS_LEFT = "org.metawatch.manager.BUTTON_PRESS_LEFT";
 	public static final String ORG_METAWATCH_MANAGER_BUTTON_PRESS_RIGHT = "org.metawatch.manager.BUTTON_PRESS_RIGHT";
+	public static final String ORG_METAWATCH_MANAGER_BUTTON_PRESS_RIGHT_LONG = "org.metawatch.manager.BUTTON_PRESS_RIGHT_LONG";
 	public static final String ORG_METAWATCH_MANAGER_APPLICATION_DISCOVERY = "org.metawatch.manager.APPLICATION_DISCOVERY";
 	public static final String ORG_METAWATCH_MANAGER_WIDGETS_DESIRED = "org.metawatch.manager.widgets_desired";
 	public static final String ORG_METAWATCH_MANAGER_GET_PREVIEWS = "org.metawatch.manager.get_previews";

@@ -76,7 +76,8 @@ public class BicoService extends Service {
 		intentFilter.addAction(IntentConstants.ORG_METAWATCH_MANAGER_REFRESH_WIDGET_REQUEST);
 		intentFilter.addAction(IntentConstants.ORG_METAWATCH_MANAGER_APPLICATION_DISCOVERY);
 		intentFilter.addAction(IntentConstants.ORG_METAWATCH_MANAGER_BUTTON_PRESS_RIGHT);
-		intentFilter.addAction(IntentConstants.ORG_METAWATCH_MANAGER_BUTTON_PRESS_LEFT); // future use
+		intentFilter.addAction(IntentConstants.ORG_METAWATCH_MANAGER_BUTTON_PRESS_RIGHT_LONG);
+		intentFilter.addAction(IntentConstants.ORG_METAWATCH_MANAGER_BUTTON_PRESS_LEFT);
 		registerReceiver(serviceStatusReceiver, intentFilter);
 	}
 
@@ -180,40 +181,51 @@ public class BicoService extends Service {
 				Log.d(C.TAG, "Received Right Button press from Metawatch Manager, pausing/resuming mytracks");
 
 				try {
-					if (ctx.getData().getMyTracksService().isPaused()) {
-						ctx.getData().getMyTracksService().resumeCurrentTrack();
-					} else {
-						if (ctx.getData().getMyTracksService().getTotalTime() > 15 * 1000)
-							ctx.getData()
-									.getMyTracksService()
-									.insertWaypoint(
-											new WaypointCreationRequest(WaypointType.WAYPOINT, false, "Pause", Calendar
-													.getInstance().getTime().toString(), Units.durationToString(
-													ctx.getData().getMyTracksService().getTotalTime()).getValue(), ""));
+					if (ctx.getData().getMyTracksServiceStatus()) {
+						if (ctx.getData().getMyTracksService().isPaused()) {
+							ctx.getData().getMyTracksService().resumeCurrentTrack();
+						} else {
+							if (ctx.getData().getMyTracksService().getTotalTime() > 15 * 1000)
+								ctx.getData()
+										.getMyTracksService()
+										.insertWaypoint(
+												new WaypointCreationRequest(WaypointType.WAYPOINT, false, "Pause",
+														Calendar.getInstance().getTime().toString(), Units
+																.durationToString(
+																		ctx.getData().getMyTracksService()
+																				.getTotalTime()).getValue(), ""));
 
-						ctx.getData().getMyTracksService().pauseCurrentTrack();
+							ctx.getData().getMyTracksService().pauseCurrentTrack();
+						}
 					}
 				} catch (RemoteException e) {
 					Log.e(C.TAG, "Exception raised MyTracks services not active", e);
 				}
 
-			} else if (action.equals(IntentConstants.ORG_METAWATCH_MANAGER_BUTTON_PRESS_LEFT)) {
+			} else if (action.equals(IntentConstants.ORG_METAWATCH_MANAGER_BUTTON_PRESS_LEFT)
+					|| action.equals(IntentConstants.ORG_METAWATCH_MANAGER_BUTTON_PRESS_RIGHT_LONG)) {
 				/*
 				 * Control from metawatch manager: Add waypoint
 				 */
-				Log.d(C.TAG, "Received Left Button press from Metawatch Manager, adding waypoint");
+				Log.d(C.TAG,
+						"Received Left button press or long Right button press from Metawatch Manager, adding waypoint");
 
 				try {
-					ctx.getData()
-							.getMyTracksService()
-							.insertWaypoint(
-									new WaypointCreationRequest(WaypointType.WAYPOINT, false, "Point of Interest",
-											Calendar.getInstance().getTime().toString(), Units.durationToString(
-													ctx.getData().getMyTracksService().getTotalTime()).getValue(), ""));
+					if (ctx.getData().getMyTracksServiceStatus()) {
+
+						ctx.getData()
+								.getMyTracksService()
+								.insertWaypoint(
+										new WaypointCreationRequest(WaypointType.WAYPOINT, false, "Point of Interest",
+												Calendar.getInstance().getTime().toString(), Units.durationToString(
+														ctx.getData().getMyTracksService().getTotalTime()).getValue(),
+												""));
+
+						ctx.vibrate();
+					}
 				} catch (RemoteException e) {
 					Log.e(C.TAG, "Exception raised MyTracks services not active", e);
 				}
-				ctx.vibrate();
 
 			} else {
 				Log.w(C.TAG, "Ignored action in receiver " + action);
